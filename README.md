@@ -1,6 +1,9 @@
-# BitX-ruby
+# BitX Ruby
 
-Ruby wrapper for the BitX API
+Ruby wrapper for the BitX API.
+
+Currently the public API (ticker, orderbook, trades) is wrapped.
+TODO: Add the private API.
 
 ## Installation
 
@@ -18,7 +21,18 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+require 'bitx-ruby'
+
+# Fetch the ticker
+BitX.new.ticker('XBTZAR')
+
+# Fetch the order book
+BitX.new.orderbook('XBTZAR')
+
+# Fetch the latest trades
+BitX.new.trades('XBTZAR')
+```
 
 ## Contributing
 
