@@ -1,4 +1,4 @@
-# Bitx::Ruby
+# BitX-ruby
 
 Ruby wrapper for the BitX API
 
