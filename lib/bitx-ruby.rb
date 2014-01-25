@@ -22,6 +22,32 @@ class BitX
     }
   end
 
+  def orderbook(pair)
+    r = conn.get('/api/1/orderbook', {pair: pair})
+    if r.status != 200
+      raise Error('BitX error: #{r.status}')
+    end
+    t = JSON.parse r.body
+
+    bids = []
+    t['bids'].each do |o|
+      bids << {
+        price: BigDecimal(o['price']),
+        volume: BigDecimal(o['volume'])
+      }
+    end
+
+    asks = []
+    t['asks'].each do |o|
+      asks << {
+        price: BigDecimal(o['price']),
+        volume: BigDecimal(o['volume'])
+      }
+    end
+
+    return {bids: bids, asks: asks}
+  end
+
 private
 
   def conn
