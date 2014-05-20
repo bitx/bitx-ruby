@@ -3,13 +3,13 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
-  spec.name          = "bitx-ruby"
+  spec.name          = "bitx"
   spec.version       = '0.0.1'
   spec.authors       = ["Timothy Stranex"]
   spec.email         = ["timothy@switchless.com"]
   spec.description   = 'BitX API wrapper'
   spec.summary       = 'Ruby wrapper for the BitX API'
-  spec.homepage      = "https://bitx.co.za/api"
+  spec.homepage      = "https://mybitx.com/api"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

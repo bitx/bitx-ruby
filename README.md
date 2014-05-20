@@ -9,7 +9,7 @@ TODO: Add the private API.
 
 Add this line to your application's Gemfile:
 
-    gem 'bitx-ruby'
+    gem 'bitx'
 
 And then execute:
 
@@ -17,12 +17,12 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install bitx-ruby
+    $ gem install bitx
 
 ## Usage
 
 ```
-require 'bitx-ruby'
+require 'bitx'
 
 # Fetch the ticker
 BitX.new.ticker('XBTZAR')
