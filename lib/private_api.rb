@@ -1,8 +1,8 @@
 module PrivateApi
 
   #List Orders
-  def list_orders(pair="XBTZAR")
-    conn = self.api_auth
+  def list_orders(pair, opt={})
+    conn = self.api_auth(opt)
     r = conn.get("/api/1/listorders?pair=#{pair}")
     raise self.Error.new("BitX listorders error: #{r.status}") unless r.status == 200
 
@@ -30,11 +30,12 @@ module PrivateApi
 
   #Post Order
   #order_type 'BID'/'ASK'
-  def post_order(order_type, volume, price, pair='XBTZAR')
-    conn = self.api_auth
-
+  ORDERTYPE_BID = 'BID'
+  ORDERTYPE_ASK = 'ASK'
+  def post_order(order_type, volume, price, pair, opt={})
+    conn = self.api_auth(opt)
     r = conn.post('/api/1/postorder', {
-      pair: 'XBTZAR',
+      pair: pair,
       type: order_type,
       volume: volume.to_d.round(6).to_s,
       price: price.to_d.round(6).to_s
@@ -47,8 +48,8 @@ module PrivateApi
   end
 
   #Stop Order
-  def stop_order(order_id)
-    conn = self.api_auth
+  def stop_order(order_id, opt={})
+    conn = self.api_auth(opt)
     r = conn.post('/api/1/stoporder', {
       order_id: order_id
     })
@@ -57,8 +58,8 @@ module PrivateApi
   end
 
   #Balance
-  def balance_for(asset='XBT')
-    conn = self.api_auth
+  def balance_for(asset='XBT', opt={})
+    conn = self.api_auth(opt)
     r = conn.get('/api/1/balance?asset=' + asset)
     raise self.Error.new("BitX balance error: #{r.status}") unless r.status == 200
     j = JSON.parse(r.body)
@@ -74,17 +75,16 @@ module PrivateApi
   end
 
   #Bitcoin Funding Address
-  def bitcoin_deposit_address()
-    conn = self.api_auth
-    r = conn.get('/api/1/funding_address', {'asset' => 'XBT'})
-    raise self.Error.new("BitX bitcoin_deposit_address error: #{r.status}") unless r.status == 200
-    j = JSON.parse(r.body)
-    j['address']
+  def funding_address(asset='XBT', opt={})
+    conn = self.api_auth(opt)
+    r = conn.get('/api/1/funding_address', {'asset' => asset})
+    raise self.Error.new("BitX_funding address error: #{r.status}") unless r.status == 200
+    JSON.parse(r.body)
   end
 
-  def api_auth
-    api_key_id = self.configuration.api_key_id
-    api_key_secret = self.configuration.api_key_secret
+  def api_auth(opt={})
+    api_key_id = opt[:api_key_id] || self.configuration.api_key_id
+    api_key_secret = opt[:api_key_secret] || self.configuration.api_key_secret
     conn = self.conn
     conn.basic_auth(api_key_id, api_key_secret)
     conn

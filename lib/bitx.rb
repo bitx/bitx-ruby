@@ -27,7 +27,7 @@ protected
 
   def self.conn
     conn = Faraday.new(url: 'https://bitx.co.za') #TODO configurable url for other domains
-    conn.headers[:user_agent] = "bitx-ruby/0.0.1"
+    conn.headers[:user_agent] = "bitx-ruby/#{BitX::VERSION::STRING}"
     conn
   end
 

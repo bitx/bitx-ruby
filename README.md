@@ -46,7 +46,7 @@ Private API usage
 # In a configure block somewhere in your app init:
 BitX.configure do |config|
   config.api_key_secret = 'yoursecretkeyfrombitx'
-  config.api_key_id = 'yoursecretidfrombitx'
+  config.api_key_id = 'yourapiidfrombitx'
 end
 
 # Your Bitcoin balance
@@ -59,9 +59,15 @@ BitX.balance_for 'ZAR'
 BitX.list_orders 'XBTZAR'
 
 # Place a new order
-order_type = 'BID' # or 'ASK'
+# BitX::ORDERTYPE_BID / BitX::ORDERTYPE_ASK
 volume = '0.01'
-BitX.post_order(order_type, volume, price, 'XBTZAR')
+price = '10000'
+BitX.post_order(BitX::ORDERTYPE_BID, volume, price, 'XBTZAR')
+
+
+#alternatively, if you need to change the api_key during the program you can pass options to the private methods specifying the :api_key_secret and :api_key_id
+BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'yourapiidfrombitx'})
+
 
 
 

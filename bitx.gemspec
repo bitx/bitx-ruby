@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "bitx"
-  spec.version       = '0.0.2'
+  spec.version       = BitX::VERSION::STRING.dup
   spec.authors       = ["Timothy Stranex","Francois Paul"]
   spec.email         = ["timothy@switchless.com","franc@switchless.com"]
   spec.description   = 'BitX API wrapper'
