@@ -24,14 +24,47 @@ Or install it yourself as:
 ```
 require 'bitx'
 
+```
+Public API usage
+
+```
+
 # Fetch the ticker
-BitX.new.ticker('XBTZAR')
+BitX.ticker('XBTZAR')
 
 # Fetch the order book
-BitX.new.orderbook('XBTZAR')
+BitX.orderbook('XBTZAR')
 
 # Fetch the latest trades
-BitX.new.trades('XBTZAR')
+BitX.trades('XBTZAR')
+
+```
+
+Private API usage
+
+```
+# In a configure block somewhere in your app init:
+BitX.configure do |config|
+  config.api_key_secret = 'yoursecretkeyfrombitx'
+  config.api_key_id = 'yoursecretidfrombitx'
+end
+
+# Your Bitcoin balance
+BitX.balance_for 'XBT'
+
+# Your Rand balance
+BitX.balance_for 'ZAR'
+
+# List your orders trading Bitcoin for Rand
+BitX.list_orders 'XBTZAR'
+
+# Place a new order
+order_type = 'BID' # or 'ASK'
+volume = '0.01'
+BitX.post_order(order_type, volume, price, 'XBTZAR')
+
+
+
 ```
 
 ## Contributing
