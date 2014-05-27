@@ -1,6 +1,6 @@
 module PublicApi
 
-  def ticker(pair="XBTZAR")
+  def ticker(pair)
     t = self.get('/api/1/ticker', {pair: pair})
     {
       pair: pair,
@@ -11,7 +11,7 @@ module PublicApi
     }
   end
 
-  def orderbook(pair="XBTZAR")
+  def orderbook(pair)
     t = self.get('/api/1/orderbook', {pair: pair})
 
     bids = []
@@ -33,7 +33,7 @@ module PublicApi
     return {bids: bids, asks: asks}
   end
 
-  def trades(pair="XBTZAR")
+  def trades(pair)
     t = self.get('/api/1/trades', {pair: pair})
     trades = []
     t['trades'].each do |trade|
