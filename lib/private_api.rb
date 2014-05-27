@@ -1,11 +1,13 @@
 module PrivateApi
 
+  class BitXError < StandardError
+  end
+
   #List Orders
   def list_orders(pair, opt={})
-    conn = self.api_auth(opt)
-    r = conn.get("/api/1/listorders?pair=#{pair}")
-    raise self.Error.new("BitX listorders error: #{r.status}") unless r.status == 200
-
+    opt.merge!({params: {pair: pair}})
+    path = '/api/1/listorders'
+    r = authed_request(path, opt)
     j = JSON.parse(r.body)
 
     ol = []
@@ -33,37 +35,35 @@ module PrivateApi
   ORDERTYPE_BID = 'BID'
   ORDERTYPE_ASK = 'ASK'
   def post_order(order_type, volume, price, pair, opt={})
-    conn = self.api_auth(opt)
-    r = conn.post('/api/1/postorder', {
+    params = {
       pair: pair,
       type: order_type,
       volume: volume.to_d.round(6).to_s,
       price: price.to_d.round(6).to_s
-    })
-    raise self.Error.new("BitX postorder error: #{r.status}") unless r.status == 200
-
+    }
+    opt.merge!({params: params, method: :post})
+    path = '/api/1/postorder'
+    r = authed_request(path, opt)
     j = JSON.parse(r.body)
-    raise self.Error.new("BitX postorder error: #{j['error']}") if j['error']
+    raise BitXError.new("BitX postorder error: #{j['error']}") if j['error']
     j
   end
 
   #Stop Order
   def stop_order(order_id, opt={})
-    conn = self.api_auth(opt)
-    r = conn.post('/api/1/stoporder', {
-      order_id: order_id
-    })
-    raise self.Error.new("BitX stoporder error: #{r.status}") unless r.status == 200
+    opt.merge!({params: {order_id: order_id}, method: :post})
+    path = '/api/1/stoporder'
+    r = authed_request(path, opt)
     true
   end
 
   #Balance
   def balance_for(asset='XBT', opt={})
-    conn = self.api_auth(opt)
-    r = conn.get('/api/1/balance?asset=' + asset)
-    raise self.Error.new("BitX balance error: #{r.status}") unless r.status == 200
+    opt.merge!({params: {asset: asset}})
+    path = '/api/1/balance'
+    r = authed_request(path, opt)
     j = JSON.parse(r.body)
-    raise self.Error.new("BitX balance error: #{j['error']}") if j['error']
+    raise BitXError.new("BitX balance error: #{j['error']}") if j['error']
     balance = BigDecimal(j['balance'][0]['balance'])
     reserved = BigDecimal(j['balance'][0]['reserved'])
     {
@@ -76,9 +76,9 @@ module PrivateApi
 
   #Bitcoin Funding Address
   def funding_address(asset='XBT', opt={})
-    conn = self.api_auth(opt)
-    r = conn.get('/api/1/funding_address', {'asset' => asset})
-    raise self.Error.new("BitX_funding address error: #{r.status}") unless r.status == 200
+    opt.merge!({params: {asset: asset}})
+    path = '/api/1/funding_address'
+    r = authed_request(path, opt)
     JSON.parse(r.body)
   end
 
@@ -88,6 +88,24 @@ module PrivateApi
     conn = self.conn
     conn.basic_auth(api_key_id, api_key_secret)
     conn
+  end
+
+  # opt can specify the method to be :post
+  # opt can specify request params in :params
+  # opt could also include the api_key_id and api_key_secret
+  def authed_request(path, opt={})
+    method = opt[:method] || :get
+    conn = self.api_auth(opt)
+    r = case method
+    when :get
+      conn.get(path, opt[:params])
+    when :post
+      conn.post(path, opt[:params])
+    else
+      raise BitXError.new("Request must be :post or :get")
+    end
+    raise BitXError.new("BitX #{path} error: #{r.status}") unless r.status == 200
+    r
   end
 
 end

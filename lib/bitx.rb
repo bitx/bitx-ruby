@@ -3,6 +3,7 @@ require 'json'
 require 'bigdecimal'
 require_relative 'public_api'
 require_relative 'private_api'
+require_relative 'version'
 
 module BitX
   class Configuration
