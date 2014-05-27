@@ -1,74 +1,45 @@
 require 'faraday'
 require 'json'
 require 'bigdecimal'
+require_relative 'public_api'
+require_relative 'private_api'
+require_relative 'version'
 
-class BitX
+module BitX
+  class Configuration
+    attr_accessor :api_key_id, :api_key_secret
+  end
+
+  def self.configuration
+    @configuration ||=  Configuration.new
+  end
+
+  def self.configure
+    yield(configuration) if block_given?
+  end
 
   class Error < StandardError
   end
 
-  def ticker(pair)
-    t = get('/api/1/ticker', {pair: pair})
-    {
-      pair: pair,
-      timestamp: Time.at(t["timestamp"].to_i/1000),
-      ask: BigDecimal(t["ask"]),
-      bid: BigDecimal(t["bid"]),
-      last: BigDecimal(t["last_trade"]),
-    }
-  end
+  extend PublicApi
+  extend PrivateApi
 
-  def orderbook(pair)
-    t = get('/api/1/orderbook', {pair: pair})
+protected
 
-    bids = []
-    t['bids'].each do |o|
-      bids << {
-        price: BigDecimal(o['price']),
-        volume: BigDecimal(o['volume'])
-      }
-    end
-
-    asks = []
-    t['asks'].each do |o|
-      asks << {
-        price: BigDecimal(o['price']),
-        volume: BigDecimal(o['volume'])
-      }
-    end
-
-    return {bids: bids, asks: asks}
-  end
-
-  def trades(pair)
-    t = get('/api/1/trades', {pair: pair})
-    trades = []
-    t['trades'].each do |trade|
-      trades << {
-        timestamp: Time.at(trade['timestamp'].to_i/1000),
-        price: BigDecimal(trade['price']),
-        volume: BigDecimal(trade['volume'])
-      }
-    end
-    trades
-  end
-
-private
-
-  def conn
-    conn = Faraday.new(url: 'https://bitx.co.za')
-    conn.headers[:user_agent] = "bitx-ruby/0.0.1"
+  def self.conn
+    conn = Faraday.new(url: 'https://bitx.co.za') #TODO configurable url for other domains
+    conn.headers[:user_agent] = "bitx-ruby/#{BitX::VERSION::STRING}"
     conn
   end
 
-  def get(url, params)
-    r = conn.get(url, params)
+  def self.get(url, params)
+    r = self.conn.get(url, params)
     if r.status != 200
-      raise BitX::Error.new("BitX error: #{r.status}")
+      raise Error.new("BitX error: #{r.status}")
     end
     t = JSON.parse r.body
     if t['error']
-      raise BitX::Error.new('BitX error: ' + t['error'])
+      raise Error.new('BitX error: ' + t['error'])
     end
     t
   end
