@@ -11,21 +11,23 @@ module PrivateApi
     j = JSON.parse(r.body)
 
     ol = []
-    j['orders'].each do |bo|
-      ol << {
-        completed:    bo['state'] != 'PENDING',
-        state:        bo['state'],
-        created_at:   Time.at(bo['creation_timestamp'].to_i/1000),
-        expires_at:   Time.at(bo['expiration_timestamp'].to_i/1000),
-        order_id:     bo['order_id'],
-        limit_price:  BigDecimal(bo['limit_price']),
-        limit_volume: BigDecimal(bo['limit_volume']),
-        base:         BigDecimal(bo['base']),
-        fee_base:     BigDecimal(bo['fee_base']),
-        counter:      BigDecimal(bo['counter']),
-        fee_counter:  BigDecimal(bo['fee_counter']),
-        type:   bo['type'].to_sym
-      }
+    if j['orders']
+      j['orders'].each do |bo|
+        ol << {
+          completed:    bo['state'] != 'PENDING',
+          state:        bo['state'],
+          created_at:   Time.at(bo['creation_timestamp'].to_i/1000),
+          expires_at:   Time.at(bo['expiration_timestamp'].to_i/1000),
+          order_id:     bo['order_id'],
+          limit_price:  BigDecimal(bo['limit_price']),
+          limit_volume: BigDecimal(bo['limit_volume']),
+          base:         BigDecimal(bo['base']),
+          fee_base:     BigDecimal(bo['fee_base']),
+          counter:      BigDecimal(bo['counter']),
+          fee_counter:  BigDecimal(bo['fee_counter']),
+          type:   bo['type'].to_sym
+        }
+      end
     end
     ol
   end
