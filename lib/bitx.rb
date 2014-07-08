@@ -27,7 +27,7 @@ module BitX
 protected
 
   def self.conn
-    conn = Faraday.new(url: 'https://bitx.co.za') #TODO configurable url for other domains
+    conn = Faraday.new(url: 'https://mybitx.com')
     conn.headers[:user_agent] = "bitx-ruby/#{BitX::VERSION::STRING}"
     conn
   end

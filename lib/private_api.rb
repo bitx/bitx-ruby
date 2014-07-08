@@ -5,9 +5,9 @@ module PrivateApi
 
   #List Orders
   def list_orders(pair, opt={})
-    opt.merge!({params: {pair: pair}})
+    opt.merge!({pair: pair})
     path = '/api/1/listorders'
-    r = authed_request(path, opt)
+    r = authed_request(path, {params: opt})
     j = JSON.parse(r.body)
 
     ol = []
@@ -53,17 +53,17 @@ module PrivateApi
 
   #Stop Order
   def stop_order(order_id, opt={})
-    opt.merge!({params: {order_id: order_id}, method: :post})
+    options = {params: opt.merge!({order_id: order_id}), method: :post}
     path = '/api/1/stoporder'
-    r = authed_request(path, opt)
+    r = authed_request(path, options)
     true
   end
 
   #Balance
   def balance_for(asset='XBT', opt={})
-    opt.merge!({params: {asset: asset}})
+    opt.merge!({asset: asset})
     path = '/api/1/balance'
-    r = authed_request(path, opt)
+    r = authed_request(path, {params: opt})
     j = JSON.parse(r.body)
     raise BitXError.new("BitX balance error: #{j['error']}") if j['error']
     balance = BigDecimal(j['balance'][0]['balance'])
@@ -78,9 +78,9 @@ module PrivateApi
 
   #Bitcoin Funding Address
   def funding_address(asset='XBT', opt={})
-    opt.merge!({params: {asset: asset}})
+    opt.merge!({asset: asset})
     path = '/api/1/funding_address'
-    r = authed_request(path, opt)
+    r = authed_request(path, {params: opt})
     JSON.parse(r.body)
   end
 
