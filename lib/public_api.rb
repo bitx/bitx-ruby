@@ -30,7 +30,7 @@ module PublicApi
       }
     end
 
-    return {timestamp: Time.at(trade['timestamp'].to_i/1000), bids: bids, asks: asks}
+    return {bids: bids, asks: asks}
   end
 
   def trades(pair)
