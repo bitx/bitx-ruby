@@ -4,11 +4,27 @@ module PublicApi
     t = self.get('/api/1/ticker', {pair: pair})
     {
       pair: pair,
-      timestamp: Time.at(t["timestamp"].to_i/1000),
-      ask: BigDecimal(t["ask"]),
-      bid: BigDecimal(t["bid"]),
-      last: BigDecimal(t["last_trade"]),
+      timestamp: Time.at(t['timestamp'].to_i/1000),
+      ask: BigDecimal(t['ask']),
+      bid: BigDecimal(t['bid']),
+      last: BigDecimal(t['last_trade']),
+      volume: t['rolling_24_hour_volume']
     }
+  end
+
+  def tickers
+    tickers = []
+    self.get('/api/1/tickers')['tickers'].each do |t|
+      tickers << {
+        pair: t['pair'],
+        timestamp: Time.at(t['timestamp'].to_i/1000),
+        ask: BigDecimal(t['ask']),
+        bid: BigDecimal(t['bid']),
+        last: BigDecimal(t['last_trade']),
+        volume: t['rolling_24_hour_volume']
+      }
+    end
+    tickers
   end
 
   def orderbook(pair)
@@ -30,7 +46,7 @@ module PublicApi
       }
     end
 
-    return {bids: bids, asks: asks}
+    {bids: bids, asks: asks, timestamp: Time.at(t['timestamp'].to_i/1000)}
   end
 
   def trades(pair)

@@ -2,8 +2,9 @@
 
 Ruby wrapper for the BitX API.
 
-Currently the public API (ticker, orderbook, trades) is wrapped.
-TODO: Add the private API.
+## Rate limits
+
+If rate limits are exceeded BitX will return a 503 error. Make sure your code handles that appropriately.
 
 ## Installation
 
@@ -47,6 +48,7 @@ Private API usage
 BitX.configure do |config|
   config.api_key_secret = 'yoursecretkeyfrombitx'
   config.api_key_id = 'yourapiidfrombitx'
+  config.api_key_pin = 'yourapikeypinfrombitx'
 end
 
 # Your Bitcoin balance
@@ -80,3 +82,17 @@ BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'y
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+
+## Changelog
+
+# 0.1.0 - adds a number of methods. introduces some breaking changes to existing methods.
+  add support for public method *tickers* to get all bitx tickers
+  add volume to *ticker* response to be the 24_hour_rolling_volume
+  add timestamp to *orderbook* response
+  deprecate *balance_for*
+  add *balance* to return a list of accounts with balances
+  add *new_receive_address*
+  add *received_by_address*
+  modify *funding_address*
+  deprecate *funding_address*
