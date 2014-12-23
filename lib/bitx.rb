@@ -32,7 +32,7 @@ protected
     conn
   end
 
-  def self.get(url, params)
+  def self.get(url, params=nil)
     r = self.conn.get(url, params)
     if r.status != 200
       raise Error.new("BitX error: #{r.status}")

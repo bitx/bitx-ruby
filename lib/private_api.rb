@@ -114,7 +114,7 @@ module PrivateApi
           asset:       b['asset'],
           balance:     balance,
           reserved:    reserved,
-          available:   balance - reserved
+          available:   balance - reserved,
           unconfirmed: BigDecimal(b['unconfirmed'])
         }
       end
