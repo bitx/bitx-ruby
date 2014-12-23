@@ -96,3 +96,11 @@ BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'y
   add *received_by_address*
   modify *funding_address*
   deprecate *funding_address*
+  add *send* method
+  add *api_key_pin* config option
+  add *create_quote*
+  add *exercise_quote*
+  add *discard_quote*
+  add *view_quote*
+  add basic tests
+
