@@ -3,18 +3,18 @@ module PrivateApi
   class BitXError < StandardError
   end
 
-  # <----- ORDERS
+  # <----- ORDERS .
 
   #List Orders
   def list_orders(pair, opt={})
     opt.merge!({pair: pair})
     path = '/api/1/listorders'
     r = authed_request(path, {params: opt})
-    j = JSON.parse(r.body)
+    j = JSON.parse(r.body, {symbolize_names: true})
 
     ol = []
-    if j['orders']
-      j['orders'].each do |bo|
+    if j[:orders]
+      j[:orders].each do |bo|
         ol << format_order_hash(bo)
       end
     end
@@ -33,7 +33,7 @@ module PrivateApi
     opt.merge!({params: params, method: :post})
     path = '/api/1/postorder'
     r = authed_request(path, opt)
-    j = JSON.parse(r.body)
+    j = JSON.parse(r.body, {symbolize_names: true})
     raise BitXError.new("BitX postorder error: #{j['error']}") if j['error']
     j
   end
@@ -43,34 +43,32 @@ module PrivateApi
     options = {params: opt.merge!({order_id: order_id}), method: :post}
     path = '/api/1/stoporder'
     r = authed_request(path, options)
-    j = JSON.parse(r.body)
-    return true if j['success']
-    false
+    JSON.parse(r.body, {symbolize_names: true})
   end
 
   #Get Order
   def get_order(order_id, opt={})
-    path = "/api/1/listorders/#{order_id}"
+    path = "/api/1/orders/#{order_id}"
     r = authed_request(path, {params: opt})
-    o = JSON.parse(r.body)
+    o = JSON.parse(r.body, {symbolize_names: true})
 
     format_order_hash(o)
   end
 
   def format_order_hash(o)
     {
-      completed:    o['state'] == 'COMPLETE',
-      state:        o['state'],
-      created_at:   Time.at(o['creation_timestamp'].to_i/1000),
-      expires_at:   Time.at(o['expiration_timestamp'].to_i/1000),
-      order_id:     o['order_id'],
-      limit_price:  BigDecimal(o['limit_price']),
-      limit_volume: BigDecimal(o['limit_volume']),
-      base:         BigDecimal(o['base']),
-      fee_base:     BigDecimal(o['fee_base']),
-      counter:      BigDecimal(o['counter']),
-      fee_counter:  BigDecimal(o['fee_counter']),
-      type:         o['type'].to_sym
+      completed:    o[:state] == 'COMPLETE',
+      state:        o[:state],
+      created_at:   Time.at(o[:creation_timestamp].to_i/1000),
+      expires_at:   Time.at(o[:expiration_timestamp].to_i/1000),
+      order_id:     o[:order_id],
+      limit_price:  BigDecimal(o[:limit_price]),
+      limit_volume: BigDecimal(o[:limit_volume]),
+      base:         BigDecimal(o[:base]),
+      fee_base:     BigDecimal(o[:fee_base]),
+      counter:      BigDecimal(o[:counter]),
+      fee_counter:  BigDecimal(o[:fee_counter]),
+      type:         o[:type].to_sym
     }
   end
 
@@ -79,7 +77,7 @@ module PrivateApi
 
 
 
-  # <----- BALANCE
+  # <----- BALANCE .
 
   #Balance
   def balance_for(asset='XBT', opt={})
@@ -99,7 +97,7 @@ module PrivateApi
     }
   end
 
-  def balance(opt)
+  def balance(opt={})
     path = '/api/1/balance'
     r = authed_request(path, opt)
     j = JSON.parse(r.body)
@@ -126,7 +124,7 @@ module PrivateApi
 
 
 
-  # <----- receive addresses
+  # <----- receive addresses .
   def new_receive_address(opt={})
     receive_address_request(opt, :post)
   end
@@ -140,13 +138,7 @@ module PrivateApi
     opt.merge!({asset: 'XBT'})
     path = '/api/1/funding_address'
     r = authed_request(path, {params: opt, method: method})
-    j = JSON.parse(r.body)
-    {
-      asset:              j['asset'],
-      address:            j['address'],
-      total_received:     j['total_received'],
-      total_unconfirmed:  j['total_unconfirmed'],
-    }
+    JSON.parse(r.body, {symbolize_names: true})
   end
 
   #Bitcoin Funding Address
@@ -158,48 +150,40 @@ module PrivateApi
   # receive addresses -----/>
 
 
-  # <----- withdrawal requests
+  # <----- withdrawal requests .
   def withdrawals
-    path = '/api/1/withdrawals/'
+    path = '/api/1/withdrawals'
     r = authed_request(path, {params: {}, method: :get})
-    j = JSON.parse(r.body)
+    j = JSON.parse(r.body, {symbolize_names: true})
 
-    withdrawals = []
-    if j['withdrawal']
-      j['withdrawal'].each do |w|
-        withdrawals << {
-          id:      w['id'],
-          status:  w['status']
-        }
-      end
-    end
-    withdrawals
+    return j[:withdrawals] if j[:withdrawals]
+    return j
   end
 
   def withdraw(type, amount)
     # valid types
     # ZAR_EFT,NAD_EFT,KES_MPESA,MYR_IBG,IDR_LLG
 
-    path = '/api/1/withdrawals/'
+    path = '/api/1/withdrawals'
     r = authed_request(path, {params: {type: type, amount: amount}, method: :post})
-    JSON.parse(r.body).symbolize_keys
+    JSON.parse(r.body, {symbolize_names: true})
   end
 
   def withdrawal(withdrawal_id)
     path = "/api/1/withdrawals/#{withdrawal_id}"
     r = authed_request(path, {params: {}, method: :get})
-    JSON.parse(r.body).symbolize_keys
+    JSON.parse(r.body, {symbolize_names: true})
   end
 
   def cancel_withdrawal(withdrawal_id)
     path = "/api/1/withdrawals/#{withdrawal_id}"
     r = authed_request(path, {params: {}, method: :delete})
-    JSON.parse(r.body).symbolize_keys
+    JSON.parse(r.body, {symbolize_names: true})
   end
   # withdrawal requests -----/>
 
 
-  # <------- send
+  # <------- send .
 
   def send(amount, address, currency='XBT', description='', message='', pin=nil)
     # valid types
@@ -208,7 +192,7 @@ module PrivateApi
     pin ||= self.configuration.api_key_pin rescue nil
 
     path = '/api/1/send'
-    authed_request(path, {
+    r = authed_request(path, {
       params: {
         amount: amount.to_s,
         address: address,
@@ -219,13 +203,13 @@ module PrivateApi
       },
       method: :post
     })
-    JSON.parse(r.body).symbolize_keys
+    JSON.parse(r.body, {symbolize_names: true})
   end
 
   # send ------/>
 
 
-  # <------- quotes
+  # <------- quotes .
 
   def create_quote(pair, base_amount, type)
     #POST
@@ -261,7 +245,7 @@ module PrivateApi
   end
 
   def extract_quote_from_body(body)
-    quote = JSON.parse(body).symbolize_keys
+    quote = JSON.parse(body, {symbolize_names: true})
     return nil unless quote
     quote[:created_at] = Time.at(quote[:created_at]/1000) if quote[:created_at]
     quote[:expires_at] = Time.at(quote[:expires_at]/1000) if quote[:expires_at]

@@ -1,8 +1,7 @@
-require "minitest/pride"
-require "minitest/autorun"
 require_relative "../lib/bitx.rb"
 
-  module BitX
+  module PublicStubs
+
     def self.conn
      stubs = Faraday::Adapter::Test::Stubs.new do |stub|
         # ticker
@@ -21,7 +20,10 @@ require_relative "../lib/bitx.rb"
     "error": "Invalid currency pair.",
     "error_code": "ErrInvalidPair"
 }']}
-        stub.get('/api/1/ticker?pair=ZARXBT') {[500, {}, 'Internal Server Error']}
+        stub.get('/api/1/ticker?pair=ZARXBT') {[200, {}, '{
+    "error": "Invalid currency pair.",
+    "error_code": "ErrInvalidPair"
+}']}
 
 
         # tickers
@@ -98,11 +100,20 @@ require_relative "../lib/bitx.rb"
         faraday.adapter :test, stubs
       end
     end
+
+
   end
 
-  class TestMeme < Minitest::Test
 
-    #def setup; end
+
+require "minitest/pride"
+require "minitest/autorun"
+
+  class TestPublic < Minitest::Test
+
+    def setup
+      BitX.set_conn(PublicStubs.conn)
+    end
 
     def test_ticker
       ticker = BitX.ticker('XBTZAR')
@@ -121,7 +132,7 @@ require_relative "../lib/bitx.rb"
       err = assert_raises(BitX::Error) {
         BitX.ticker('ZARXBT')
       }
-      assert_equal err.message, 'BitX error: 500'
+      assert_equal err.message, 'BitX error: Invalid currency pair.'
     end
 
     def test_tickers

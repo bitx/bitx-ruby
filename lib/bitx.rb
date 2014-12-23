@@ -24,12 +24,24 @@ module BitX
   extend PublicApi
   extend PrivateApi
 
-protected
+
+
+
+  def self.set_conn(conn=nil)
+    if conn.nil?
+      BitX.conn
+    else
+      @conn = conn
+    end
+  end
+
+  protected
 
   def self.conn
-    conn = Faraday.new(url: 'https://api.mybitx.com')
-    conn.headers[:user_agent] = "bitx-ruby/#{BitX::VERSION::STRING}"
-    conn
+    return @conn if @conn
+    @conn = Faraday.new(url: 'https://api.mybitx.com')
+    @conn.headers[:user_agent] = "bitx-ruby/#{BitX::VERSION::STRING}"
+    @conn
   end
 
   def self.get(url, params=nil)
