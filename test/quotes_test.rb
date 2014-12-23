@@ -6,7 +6,7 @@ require_relative "../lib/bitx.rb"
     def self.conn
       stubs = Faraday::Adapter::Test::Stubs.new do |stub|
 
-        stub.post('/api/1/quotes', {:type=>"BUY", :pair=>"XBTZAR", :base_amount=>0.1}) {[ 200, {},
+        stub.post('/api/1/quotes', {type:"BUY", pair:"XBTZAR", base_amount:0.1}) {[ 200, {},
               '{
   "id": "1324",
   "type": "BUY",
@@ -20,7 +20,7 @@ require_relative "../lib/bitx.rb"
 }']}
 
 
-        stub.post('/api/1/quotes', {:type=>"SELL", :pair=>"XBTZAR", :base_amount=>0.1}) {[ 200, {},
+        stub.post('/api/1/quotes', {type:"SELL", pair:"XBTZAR", base_amount:0.1}) {[ 200, {},
               '{
   "id": "1325",
   "type": "SELL",
