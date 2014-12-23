@@ -86,6 +86,7 @@ BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'y
 
 ## Changelog
 
+```
 # 0.1.0 - adds a number of methods. introduces some breaking changes to existing methods.
   add support for public method *tickers* to get all bitx tickers
   add volume to *ticker* response to be the 24_hour_rolling_volume
@@ -103,4 +104,4 @@ BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'y
   add *discard_quote*
   add *view_quote*
   add basic tests
-
+```
