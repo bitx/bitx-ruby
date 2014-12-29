@@ -7,7 +7,7 @@ require_relative 'version'
 
 module BitX
   class Configuration
-    attr_accessor :api_key_id, :api_key_secret
+    attr_accessor :api_key_id, :api_key_secret, :api_key_pin
   end
 
   def self.configuration
