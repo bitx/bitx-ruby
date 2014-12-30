@@ -24,18 +24,9 @@ module BitX
   extend PublicApi
   extend PrivateApi
 
-
-
-
   def self.set_conn(conn=nil)
-    if conn.nil?
-      BitX.conn
-    else
-      @conn = conn
-    end
+    @conn = conn || BitX.conn
   end
-
-  protected
 
   def self.conn
     return @conn if @conn
@@ -44,15 +35,29 @@ module BitX
     @conn
   end
 
-  def self.get(url, params=nil)
-    r = self.conn.get(url, params)
-    if r.status != 200
-      raise Error.new("BitX error: #{r.status}")
+
+  #connection object to be used in concurrent systems where connections and configurations might differ
+  class Connection
+    include PublicApi
+    include PrivateApi
+    attr_accessor :configuration, :conn
+
+    def initialize(connection=nil)
+      @conn = connection || BitX.conn
+      @configuration = BitX.configuration
+      yield(@configuration) if block_given?
     end
-    t = JSON.parse r.body
-    if t['error']
-      raise Error.new('BitX error: ' + t['error'])
+
+    def self.conn
+      @conn
     end
-    t
+
+    def self.get(url, params=nil)
+      get(url, params)
+    end
+
+    def self.configuration
+      @configuration
+    end
   end
 end

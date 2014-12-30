@@ -36,12 +36,19 @@ require_relative "../lib/bitx.rb"
 
   class TestBalance < Minitest::Test
 
-    def setup
+    def test_balance
       BitX.set_conn(BalanceStubs.conn)
+
+      r = BitX.balance
+      assert_equal r.first[:reserved], 0.01
+      assert_equal r.first[:available], r.first[:balance] - r.first[:reserved]
+      assert_equal r.first[:unconfirmed], 0.421
+      assert_equal r.first[:asset], 'XBT'
+      assert_equal r.last[:account_id], '2997473'
     end
 
-    def test_balance
-      r = BitX.balance
+    def test_connection_balance
+      r = BitX::Connection.new(BalanceStubs.conn).balance
       assert_equal r.first[:reserved], 0.01
       assert_equal r.first[:available], r.first[:balance] - r.first[:reserved]
       assert_equal r.first[:unconfirmed], 0.421

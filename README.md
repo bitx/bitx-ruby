@@ -75,6 +75,27 @@ BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'y
 
 ```
 
+
+Connection object
+
+```
+  # if you need to access the BitX api with different credentials in a concurrent system, you can use the BitX::Connection object
+
+  #if config changes:
+  bit_x = BitX::Connection.new() do |config|
+    config.api_key_secret = 'yoursecretkeyfrombitx'
+    config.api_key_id = 'yourapiidfrombitx'
+    config.api_key_pin = 'yourapikeypinfrombitx'
+  end
+  bit_x.balance
+
+  #if you want to use a mocked connection
+  bitx = BitX::Connection.new(stubbed_connection)
+  bitx.tickers
+
+
+```
+
 ## Contributing
 
 1. Fork it
@@ -87,6 +108,7 @@ BitX.balance_for('XBT', {api_key_secret: 'yoursecretkeyfrombitx', api_key_id: 'y
 ## Changelog
 
 ```
+# 0.2.0 - adds a connection object to support concurrent systems where the connection or configuration objects may change
 # 0.1.0 - adds a number of methods. introduces some breaking changes to existing methods.
   add support for public method *tickers* to get all bitx tickers
   add volume to *ticker* response to be the 24_hour_rolling_volume

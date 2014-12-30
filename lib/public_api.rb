@@ -62,4 +62,16 @@ module PublicApi
     trades
   end
 
+  def get(url, params=nil)
+    r = self.conn.get(url, params)
+    if r.status != 200
+      raise ::BitX::Error.new("BitX error: #{r.status}")
+    end
+    t = JSON.parse r.body
+    if t['error']
+      raise ::BitX::Error.new('BitX error: ' + t['error'])
+    end
+    t
+  end
+
 end
