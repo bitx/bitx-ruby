@@ -27,7 +27,7 @@ module PrivateApi
     params = {
       pair: pair,
       type: order_type,
-      volume: volume.to_d.round(6).to_s,
+      volume: volume.to_d.round(6).to_f.to_s,
       price: price.to_f.round.to_s
     }
     opt.merge!({params: params, method: :post})
