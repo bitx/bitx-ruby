@@ -10,7 +10,6 @@ module PublicApi
       last: BigDecimal(t['last_trade']),
       volume: t['rolling_24_hour_volume']
     }
-    end
   end
 
   def tickers

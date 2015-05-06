@@ -141,9 +141,11 @@ module PrivateApi
   end
 
   # if you have multiple XBT accounts you can specify an `address` option with the funding address
-  def received_by_address(address=nil, opt={})
-    opt[:address] = address if address
-    receive_address_request(opt, :get)
+  def received_by_address(address=nil)
+    if address.is_a? Hash
+      address = address[:address]
+    end
+    receive_address_request({address: address}, :get)
   end
 
   #Bitcoin Funding Address

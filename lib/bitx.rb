@@ -1,6 +1,7 @@
 require 'faraday'
 require 'json'
 require 'bigdecimal'
+require 'bigdecimal/util'
 require_relative 'public_api'
 require_relative 'private_api'
 require_relative 'version'

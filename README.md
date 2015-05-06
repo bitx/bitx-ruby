@@ -110,6 +110,7 @@ Connection object
   add name to balance response
   add transactions for account
   add pending transactions for account
+  change received_by_address parameters
 
 # 0.2.1 - force place order to specify price in integers
 # 0.2.0 - adds a connection object to support concurrent systems where the connection or configuration objects may change

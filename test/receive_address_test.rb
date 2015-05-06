@@ -85,7 +85,7 @@ require_relative "../lib/bitx.rb"
 
     def test_specify_address
       setup_module
-      r = BitX.received_by_address({address: 'supersecretotherbicoinwallet'})
+      r = BitX.received_by_address('supersecretotherbicoinwallet')
       assert_equal r[:total_received], "929.23001"
       assert_equal r[:total_unconfirmed], "0.30"
       assert_equal r[:address], 'supersecretotherbicoinwallet'
