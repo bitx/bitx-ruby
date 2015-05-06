@@ -10,6 +10,7 @@ module PublicApi
       last: BigDecimal(t['last_trade']),
       volume: t['rolling_24_hour_volume']
     }
+    end
   end
 
   def tickers
@@ -29,7 +30,6 @@ module PublicApi
 
   def orderbook(pair)
     t = self.get('/api/1/orderbook', {pair: pair})
-
     bids = []
     t['bids'].each do |o|
       bids << {
