@@ -29,7 +29,6 @@ module PublicApi
 
   def orderbook(pair)
     t = self.get('/api/1/orderbook', {pair: pair})
-
     bids = []
     t['bids'].each do |o|
       bids << {

@@ -3,14 +3,62 @@ module PrivateApi
   class BitXError < StandardError
   end
 
+
+  # <----- BALANCE .
+
+  #Balance
+  def balance_for(asset='XBT', opt={})
+    # ---
+    # - Deprecated
+    # ---
+    puts "BitX.balance_for will be deprecated. please use BitX.balance to get a list of account balances"
+    opt.merge!({asset: asset})
+    path = '/api/1/balance'
+    j = authed_request(path, {params: opt})
+    balance = BigDecimal(j[:balance][0][:balance])
+    reserved = BigDecimal(j[:balance][0][:reserved])
+    {
+      asset:      asset,
+      balance:    balance,
+      reserved:   reserved,
+      available:  balance - reserved
+    }
+  end
+
+  def balance(opt={})
+    path = '/api/1/balance'
+    j = authed_request(path, opt)
+
+    balances = []
+    if j[:balance]
+      j[:balance].each do |b|
+        balance     = BigDecimal(b[:balance])
+        reserved    = BigDecimal(b[:reserved])
+         bal = {
+          account_id:  b[:account_id],
+          asset:       b[:asset],
+          balance:     balance,
+          reserved:    reserved,
+          available:   balance - reserved,
+          unconfirmed: BigDecimal(b[:unconfirmed])
+        }
+        bal[:name] = b[:name] if b[:name]
+        balances << bal
+      end
+    end
+    balances
+  end
+
+  # BALANCE -----/>
+
   # <----- ORDERS .
 
   #List Orders
   def list_orders(pair, opt={})
+    #opt can include state: 'PENDING', pair: 'XBTZAR'
     opt.merge!({pair: pair})
     path = '/api/1/listorders'
-    r = authed_request(path, {params: opt})
-    j = JSON.parse(r.body, {symbolize_names: true})
+    j = authed_request(path, {params: opt})
 
     ol = []
     if j[:orders]
@@ -32,27 +80,20 @@ module PrivateApi
     }
     opt.merge!({params: params, method: :post})
     path = '/api/1/postorder'
-    r = authed_request(path, opt)
-    j = JSON.parse(r.body, {symbolize_names: true})
-    raise BitXError.new("BitX postorder error: #{j['error']}") if j['error']
-    j
+    authed_request(path, opt)
   end
 
   #Stop Order
   def stop_order(order_id, opt={})
     options = {params: opt.merge!({order_id: order_id}), method: :post}
     path = '/api/1/stoporder'
-    r = authed_request(path, options)
-    JSON.parse(r.body, {symbolize_names: true})
+    authed_request(path, options)
   end
 
   #Get Order
   def get_order(order_id, opt={})
     path = "/api/1/orders/#{order_id}"
-    r = authed_request(path, {params: opt})
-    o = JSON.parse(r.body, {symbolize_names: true})
-
-    format_order_hash(o)
+    format_order_hash authed_request(path, {params: opt})
   end
 
   def format_order_hash(o)
@@ -76,86 +117,56 @@ module PrivateApi
 
 
 
-
-  # <----- BALANCE .
-
-  #Balance
-  def balance_for(asset='XBT', opt={})
-    puts "BitX.balance_for will be deprecated. please use BitX.balance to get a list of account balances"
-    opt.merge!({asset: asset})
-    path = '/api/1/balance'
-    r = authed_request(path, {params: opt})
-    j = JSON.parse(r.body)
-    raise BitXError.new("BitX balance error: #{j['error']}") if j['error']
-    balance = BigDecimal(j['balance'][0]['balance'])
-    reserved = BigDecimal(j['balance'][0]['reserved'])
-    {
-      asset:      asset,
-      balance:    balance,
-      reserved:   reserved,
-      available:  balance - reserved
+  # <----- TRANSACTIONS .
+  def transactions(account_id, min_row=1, max_row=100)
+    path = "https://api.mybitx.com/api/1/accounts/#{account_id}/transactions"
+    opt = {
+      min_row: min_row,
+      max_row: max_row
     }
+    authed_request(path, opt)
   end
 
-  def balance(opt={})
-    path = '/api/1/balance'
-    r = authed_request(path, opt)
-    j = JSON.parse(r.body)
-
-    balances = []
-    if j['balance']
-      j['balance'].each do |b|
-        balance     = BigDecimal(b['balance'])
-        reserved    = BigDecimal(b['reserved'])
-        balances << {
-          account_id:  b['account_id'],
-          asset:       b['asset'],
-          balance:     balance,
-          reserved:    reserved,
-          available:   balance - reserved,
-          unconfirmed: BigDecimal(b['unconfirmed'])
-        }
-      end
-    end
-    balances
+  def pending(account_id)
+    authed_request("https://api.mybitx.com/api/1/accounts/#{account_id}/pending")
   end
-
-  # BALANCE -----/>
-
+  # TRANSACTIONS -----/>
 
 
-  # <----- receive addresses .
+
+
+  # <----- RECEIVE ADDRESSES .
   def new_receive_address(opt={})
     receive_address_request(opt, :post)
   end
 
   # if you have multiple XBT accounts you can specify an `address` option with the funding address
-  def received_by_address(opt={})
+  def received_by_address(address=nil)
+    if address.is_a? Hash
+      address = address[:address]
+    end
+    receive_address_request({address: address}, :get)
+  end
+
+  #Bitcoin Funding Address
+  def funding_address(asset='XBT', opt={})
+    puts "BitX.funding_address will be deprecated. please use BitX.received_by_address with a specified address paramenter or an :address option to get details for that address"
+    opt.merge!({asset: asset})
     receive_address_request(opt, :get)
   end
 
   def receive_address_request(opt, method)
     opt.merge!({asset: 'XBT'})
     path = '/api/1/funding_address'
-    r = authed_request(path, {params: opt, method: method})
-    JSON.parse(r.body, {symbolize_names: true})
+    authed_request(path, {params: opt, method: method})
   end
-
-  #Bitcoin Funding Address
-  def funding_address(asset='XBT', opt={})
-    puts "BitX.funding_address will be deprecated. please use BitX.received_by_address with a specified :address option to get details for that address"
-    opt.merge!({asset: asset})
-    receive_address_request(opt, :get)
-  end
-  # receive addresses -----/>
+  # RECEIVE ADDRESSES -----/>
 
 
   # <----- withdrawal requests .
   def withdrawals
     path = '/api/1/withdrawals'
-    r = authed_request(path, {params: {}, method: :get})
-    j = JSON.parse(r.body, {symbolize_names: true})
-
+    j = authed_request(path, {params: {}, method: :get})
     return j[:withdrawals] if j[:withdrawals]
     return j
   end
@@ -165,20 +176,17 @@ module PrivateApi
     # ZAR_EFT,NAD_EFT,KES_MPESA,MYR_IBG,IDR_LLG
 
     path = '/api/1/withdrawals'
-    r = authed_request(path, {params: {type: type, amount: amount}, method: :post})
-    JSON.parse(r.body, {symbolize_names: true})
+    authed_request(path, {params: {type: type, amount: amount}, method: :post})
   end
 
   def withdrawal(withdrawal_id)
     path = "/api/1/withdrawals/#{withdrawal_id}"
-    r = authed_request(path, {params: {}, method: :get})
-    JSON.parse(r.body, {symbolize_names: true})
+    authed_request(path, {params: {}, method: :get})
   end
 
   def cancel_withdrawal(withdrawal_id)
     path = "/api/1/withdrawals/#{withdrawal_id}"
-    r = authed_request(path, {params: {}, method: :delete})
-    JSON.parse(r.body, {symbolize_names: true})
+    authed_request(path, {params: {}, method: :delete})
   end
   # withdrawal requests -----/>
 
@@ -192,7 +200,7 @@ module PrivateApi
     pin ||= self.configuration.api_key_pin rescue nil
 
     path = '/api/1/send'
-    r = authed_request(path, {
+    authed_request(path, {
       params: {
         amount: amount.to_s,
         address: address,
@@ -203,7 +211,6 @@ module PrivateApi
       },
       method: :post
     })
-    JSON.parse(r.body, {symbolize_names: true})
   end
 
   # send ------/>
@@ -214,38 +221,37 @@ module PrivateApi
   def create_quote(pair, base_amount, type)
     #POST
     path = '/api/1/quotes'
-    r = authed_request(path, {params: {type: type, pair: pair, base_amount: base_amount}, method: :post})
-    extract_quote_from_body(r.body)
+    j = authed_request(path, {params: {type: type, pair: pair, base_amount: base_amount}, method: :post})
+    extract_quote_from_body(j)
   end
 
   def exercise_quote(quote_id, pin=nil)
     #PUT
     pin ||= self.configuration.api_key_pin rescue nil
     path = "/api/1/quotes/#{quote_id}"
-    r = authed_request(path, {
+    j = authed_request(path, {
       params: {
         pin: pin
       },
       method: :put})
-    extract_quote_from_body(r.body)
+    extract_quote_from_body(j)
   end
 
   def discard_quote(quote_id)
     #DELETE
     path = "/api/1/quotes/#{quote_id}"
-    r = authed_request(path, {method: :delete})
-    extract_quote_from_body(r.body)
+    j = authed_request(path, {method: :delete})
+    extract_quote_from_body(j)
   end
 
   def view_quote(quote_id)
     #GET
     path = "/api/1/quotes/#{quote_id}"
-    r = authed_request(path, {method: :get})
-    extract_quote_from_body(r.body)
+    j = authed_request(path, {method: :get})
+    extract_quote_from_body(j)
   end
 
-  def extract_quote_from_body(body)
-    quote = JSON.parse(body, {symbolize_names: true})
+  def extract_quote_from_body(quote)
     return nil unless quote
     quote[:created_at] = Time.at(quote[:created_at]/1000) if quote[:created_at]
     quote[:expires_at] = Time.at(quote[:expires_at]/1000) if quote[:expires_at]
@@ -283,7 +289,16 @@ module PrivateApi
       raise BitXError.new("Request must be :post or :get")
     end
     raise BitXError.new("BitX #{path} error: #{r.status}") unless r.status == 200
-    r
+
+    t = begin
+      JSON.parse(r.body, {symbolize_names: true})
+    rescue
+      {}
+    end
+    if t[:error]
+      raise ::BitX::Error.new('BitX error: ' + t[:error])
+    end
+    t
   end
 
 end

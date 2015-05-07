@@ -51,11 +51,8 @@ BitX.configure do |config|
   config.api_key_pin = 'yourapikeypinfrombitx'
 end
 
-# Your Bitcoin balance
-BitX.balance_for 'XBT'
-
-# Your Rand balance
-BitX.balance_for 'ZAR'
+# Your Balances
+BitX.balance
 
 # List your orders trading Bitcoin for Rand
 BitX.list_orders 'XBTZAR'
@@ -108,6 +105,13 @@ Connection object
 ## Changelog
 
 ```
+# 0.2.3 -
+  handle non http error status errors
+  add name to balance response
+  add transactions for account
+  add pending transactions for account
+  change received_by_address parameters
+
 # 0.2.1 - force place order to specify price in integers
 # 0.2.0 - adds a connection object to support concurrent systems where the connection or configuration objects may change
 # 0.1.0 - adds a number of methods. introduces some breaking changes to existing methods.

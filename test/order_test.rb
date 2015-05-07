@@ -26,7 +26,7 @@ require_relative "../lib/bitx.rb"
 }']}
 
 
-        stub.post('/api/1/postorder', {pair:'XBTZAR', type: 'BID', volume: '0.1', price: '1000.0'}) {[ 200, {},
+        stub.post('/api/1/postorder', {pair:'XBTZAR', type: 'BID', volume: '0.1', price: '1000'}) {[ 200, {},
               '{
   "order_id": "BXRANDOMORDERID23"
 }']}
