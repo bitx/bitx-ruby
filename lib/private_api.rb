@@ -110,7 +110,13 @@ module PrivateApi
       counter:      BigDecimal(o[:counter]),
       fee_counter:  BigDecimal(o[:fee_counter]),
       type:         o[:type].to_sym,
-      trades:       o[:trades]
+      trades:       Array(o[:trades]).map { |t|
+                      {
+                        price:     BigDecimal(t[:price]),
+                        timestamp: Time.at(t[:timestamp].to_i/1000),
+                        volume:    BigDecimal(t[:volume])
+                      }
+                    }
     }
   end
 
