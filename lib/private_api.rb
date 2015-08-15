@@ -109,7 +109,8 @@ module PrivateApi
       fee_base:     BigDecimal(o[:fee_base]),
       counter:      BigDecimal(o[:counter]),
       fee_counter:  BigDecimal(o[:fee_counter]),
-      type:         o[:type].to_sym
+      type:         o[:type].to_sym,
+      trades:       o[:trades]
     }
   end
 
