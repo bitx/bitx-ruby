@@ -97,7 +97,7 @@ module PrivateApi
   end
 
   def format_order_hash(o)
-    {
+    hash = {
       completed:    o[:state] == 'COMPLETE',
       state:        o[:state],
       created_at:   Time.at(o[:creation_timestamp].to_i/1000),
@@ -109,15 +109,18 @@ module PrivateApi
       fee_base:     BigDecimal(o[:fee_base]),
       counter:      BigDecimal(o[:counter]),
       fee_counter:  BigDecimal(o[:fee_counter]),
-      type:         o[:type].to_sym,
-      trades:       Array(o[:trades]).map { |t|
+      type:         o[:type].to_sym
+    }
+    hash.merge({
+      trades:       o[:trades].map { |t|
                       {
                         price:     BigDecimal(t[:price]),
                         timestamp: Time.at(t[:timestamp].to_i/1000),
                         volume:    BigDecimal(t[:volume])
                       }
                     }
-    }
+    }) unless o[:trades].nil?
+    hash
   end
 
   # ORDERS -----/>
