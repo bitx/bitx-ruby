@@ -41,11 +41,23 @@ require_relative "../lib/bitx.rb"
   "type": "ASK",
   "state": "PENDING",
   "limit_price": "6500.00",
-  "limit_volume": "0.02",
-  "base": "0.00",
-  "counter": "0.00",
-  "fee_base":"0.00",
-  "fee_counter":"0.00"
+  "limit_volume": "0.05",
+  "base": "0.03",
+  "counter": "195.02",
+  "fee_base":"0.000",
+  "fee_counter":"0.00",
+  "trades": [
+        {
+            "price": "6501.00",
+            "timestamp": 1402866878467,
+            "volume": "0.02"
+        },
+        {
+            "price": "6500.00",
+            "timestamp": 1402866878567,
+            "volume": "0.01"
+        }
+    ]
 }']}
 
         stub.post('/api/1/stoporder', {order_id: 'BXMC2CJ7HNB88U4'}) {[ 200, {},
@@ -95,6 +107,7 @@ require_relative "../lib/bitx.rb"
     def test_connection_get_order
       r = setup_connection.get_order('BXHW6PFRRXKFSB4')
       assert_equal r[:order_id], 'BXHW6PFRRXKFSB4'
+      assert_equal r[:trades].length, 2
     end
     def test_get_order
       setup_module
