@@ -4,7 +4,7 @@ Ruby wrapper for the BitX API.
 
 ## Rate limits
 
-If rate limits are exceeded BitX will return a 503 error. Make sure your code handles that appropriately.
+If rate limits are exceeded BitX will return a 429 error. Make sure your code handles that appropriately.
 
 ## Installation
 
