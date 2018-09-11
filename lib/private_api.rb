@@ -76,7 +76,7 @@ module PrivateApi
       pair: pair,
       type: order_type,
       volume: volume.to_d.round(6).to_f.to_s,
-      price: price.to_f.round.to_s
+      price: price.to_f.round(2).to_s
     }
     opt.merge!({params: params, method: :post})
     path = '/api/1/postorder'
