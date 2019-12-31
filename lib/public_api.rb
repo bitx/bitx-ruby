@@ -48,6 +48,35 @@ module PublicApi
     {bids: bids, asks: asks, timestamp: Time.at(t['timestamp'].to_i/1000)}
   end
 
+  # Returns a list of the top 100 bids and asks in the order book.
+  # Ask orders are sorted by price ascending.
+  # Bid orders are sorted by price descending.
+  # Orders of the same price are aggregated.
+  def orderbook_top(pair="XBTZAR")
+    t = self.get('/api/1/orderbook_top', {pair: pair})
+    usd_to_zar = Rails.cache.read("lucent:conversion_rate:usd:zar").to_f
+    puts "\n\n ==== BitX::PublicApi ==== USD_to_ZAR: #{usd_to_zar} ==== \n\n"
+    bids = []
+    t['bids'].each do |o|
+      bids << {
+        # price: (BigDecimal(o['price'])/usd_to_zar).truncate(5),
+        price: BigDecimal(o['price']),
+        volume: BigDecimal(o['volume'])
+      }
+    end
+
+    asks = []
+    t['asks'].each do |o|
+      asks << {
+        # price: (BigDecimal(o['price'])/usd_to_zar).truncate(5),
+        price: BigDecimal(o['price']),
+        volume: BigDecimal(o['volume'])
+      }
+    end
+
+    {bids: bids, asks: asks, timestamp: Time.at(t['timestamp'].to_i/1000)}
+  end
+
   def trades(pair)
     t = self.get('/api/1/trades', {pair: pair})
     trades = []
