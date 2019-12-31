@@ -48,6 +48,10 @@ module PrivateApi
     end
     balances
   end
+    
+  def get_balance(asset)
+    balance.find{ |asset_bal| asset_bal[:asset] == asset }
+  end
 
   # BALANCE -----/>
 
